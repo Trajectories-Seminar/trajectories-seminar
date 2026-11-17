@@ -22,13 +22,13 @@
 const SESSIONS = [
 
   {
-    date: "2027-01-25",
-    time: "16:00 to 17:00 CET",
-    speaker: "",
-    affiliation: "",
-    title: "",
+    date: "2027-01-27",
+    time: "17:00 to 18:00 CET",
+    speaker: "Anne-Marie Jeannet",
+    affiliation: "University of Milan",
+    title: "Is Taking the ‘Road Less Traveled’ the Key to a ‘Good Life’? Longitudinal Evidence from Switzerland",
     photo: "",
-    abstract: ``
+    abstract: `Does following an unexpected occupational path contribute to a good life? Sociological research has long examined how social origins shape occupational destinations, yet less is known about how departing from these structurally predicted destinations relates to people’s assessments of their lives. This study tests two competing hypotheses: that individuals report better lives when their occupational destinations align with those predicted by their backgrounds, or that taking a less predictable path is associated with more positive life evaluations. Drawing on longitudinal data from the Swiss Household Panel, we use supervised machine learning to estimate the probability of individuals’ observed occupations given their early-life characteristics. We develop two measures of occupational unexpectedness: one based on demographic characteristics and family background, and another incorporating educational attainment. We then examine how occupational unexpectedness relates to three retrospective evaluations measured in 2025: happiness, meaningfulness, and psychological richness. Secondary analyses explore differences by gender and occupational status. By distinguishing the predictability of an occupational destination from its position in the occupational hierarchy, the study extends research beyond conventional accounts of upward and downward mobility. It connects the social structuring of life chances to the subjective experience of a good life, asking whether lives that depart from expected pathways are experienced as happier, more meaningful, or richer in interesting experiences.`
   },
 
   {
@@ -42,7 +42,7 @@ const SESSIONS = [
   },
 
   {
-    date: "2027-03-29",
+    date: "2027-04-05",
     time: "16:00 to 17:00 CET",
     speaker: "",
     affiliation: "",
@@ -62,7 +62,7 @@ const SESSIONS = [
   },
 
   {
-    date: "2027-05-31",
+    date: "2027-06-07",
     time: "16:00 to 17:00 CET",
     speaker: "",
     affiliation: "",
