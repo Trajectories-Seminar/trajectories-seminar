@@ -123,3 +123,5 @@ footer .join{margin-top:28px}
 footer .legal{grid-column:1/-1;margin-top:32px;font-size:.88rem;opacity:.85}
 footer .legal a{margin-right:20px}
 @media (max-width:820px){footer .wrap{grid-template-columns:1fr;gap:20px}footer dl{grid-template-columns:1fr;gap:2px}footer dd{margin-bottom:10px}}
+
+.prose strong{font-weight:700}
