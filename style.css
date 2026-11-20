@@ -46,7 +46,7 @@ footer .join:hover{background:#fff;color:var(--ink)}
 /* Hero */
 .hero{padding-top:48px}
 .hero h1{font-size:clamp(3.6rem,11vw,9rem);font-weight:800;letter-spacing:-.045em;line-height:.9}
-.hero .sub{font-size:clamp(1.15rem,2.2vw,1.5rem);font-weight:500;margin-top:18px;max-width:30ch;line-height:1.3}
+.hero .sub{font-size:clamp(1.3rem,2.6vw,1.8rem);font-weight:500;margin-top:clamp(30px,3.6vw,48px);max-width:32ch;line-height:1.3}
 .lines{display:block;width:100%;height:clamp(140px,22vw,280px);margin-top:24px}
 .lines path{fill:none;stroke-width:16px;stroke-linecap:round;vector-effect:non-scaling-stroke}
 .l-gold{stroke:var(--c-gold)} .l-red{stroke:var(--c-red)} .l-blue{stroke:var(--c-blue)} .l-green{stroke:var(--c-green)}
@@ -74,7 +74,7 @@ footer .join:hover{background:#fff;color:var(--ink)}
 .day{font-size:2.6rem;font-weight:800;line-height:.9;letter-spacing:-.04em}
 .day small{display:block;font-size:.95rem;font-weight:600;letter-spacing:0;margin-top:6px;color:var(--grey)}
 .pic{position:relative;background:#F2F2F2;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800;color:#B5B5B5}
-.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%}
 .session .pic{width:112px;height:112px;font-size:1.8rem}
 .session h3{font-size:1.3rem;font-weight:700;line-height:1.25;letter-spacing:-.01em;max-width:42ch}
 .who{margin-top:8px}
