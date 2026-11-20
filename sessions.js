@@ -43,7 +43,7 @@ const SESSIONS = [
 
   {
     date: "2027-04-05",
-    time: "16:00 to 17:00 CET",
+    time: "16:00 to 17:00 CEST",
     speaker: "",
     affiliation: "",
     title: "",
@@ -53,7 +53,7 @@ const SESSIONS = [
 
   {
     date: "2027-04-26",
-    time: "16:00 to 17:00 CET",
+    time: "16:00 to 17:00 CEST",
     speaker: "",
     affiliation: "",
     title: "",
@@ -63,7 +63,7 @@ const SESSIONS = [
 
   {
     date: "2027-06-07",
-    time: "16:00 to 17:00 CET",
+    time: "16:00 to 17:00 CEST",
     speaker: "",
     affiliation: "",
     title: "",
@@ -73,7 +73,7 @@ const SESSIONS = [
 
   {
     date: "2027-06-28",
-    time: "16:00 to 17:00 CET",
+    time: "16:00 to 17:00 CEST",
     speaker: "",
     affiliation: "",
     title: "",
@@ -149,6 +149,7 @@ function renderSessionLists() {
     document.getElementById("sessions-past").innerHTML = past.map(rowHTML).join("");
     document.getElementById("past").hidden = false;
   }
+  bindCalendarButtons();
 }
 
 /* Abstract page */
@@ -172,6 +173,7 @@ function renderSessionPage() {
         <p class="when">${full}, ${esc(s.time)}</p>
         <h1>${esc(s.title)}</h1>
         ${whoHTML(s)}
+        ${isPast(s) ? "" : `<p class="calrow"><button type="button" class="cal" data-cal="${esc(s.date)}">Add to calendar</button><a class="gcal" href="${googleLink(s)}" target="_blank" rel="noopener">Google Calendar</a></p>`}
       </div>
       ${picHTML(s)}
     </div>
@@ -182,4 +184,113 @@ function renderSessionPage() {
         <a class="join" href="${MAILING_LIST}" target="_blank" rel="noopener">Join the mailing list</a></div>`}
       </div>
     </div></section>`;
+  bindCalendarButtons();
+}
+
+/* ---------------------------------------------------------
+   Calendar files (.ics), built from the list above.
+   Times are read as Italian time (Europe/Rome), so summer
+   time is handled automatically.
+   --------------------------------------------------------- */
+
+const SITE_URL = "https://trajectories-seminar.github.io/trajectories-seminar/";
+const ZOOM_NOTE = "Online on Zoom. The Zoom link will be sent by email to the mailing list before the session.";
+
+/* Start and end of a session as UTC Date objects */
+function sessionTimes(s) {
+  const t = s.time.match(/(\d{1,2}):(\d{2})\D+(\d{1,2}):(\d{2})/);
+  const [y, m, d] = s.date.split("-").map(Number);
+  const sh = t ? +t[1] : 16, sm = t ? +t[2] : 0;
+  const eh = t ? +t[3] : sh + 1, em = t ? +t[4] : sm;
+  return { start: romeToUTC(y, m, d, sh, sm), end: romeToUTC(y, m, d, eh, em) };
+}
+function romeToUTC(y, m, d, hh, mm) {
+  const guess = Date.UTC(y, m - 1, d, hh, mm);
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Rome", hourCycle: "h23",
+    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit"
+  }).formatToParts(new Date(guess)).reduce((o, p) => (o[p.type] = p.value, o), {});
+  const asRome = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute);
+  return new Date(guess - (asRome - guess));
+}
+function icsStamp(dt) { return dt.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, ""); }
+function icsText(t) { return String(t).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n"); }
+function icsFold(line) {
+  const out = []; let cur = "", bytes = 0;
+  for (const ch of line) {
+    const b = new TextEncoder().encode(ch).length;
+    if (bytes + b > 74) { out.push(cur); cur = " "; bytes = 1; }
+    cur += ch; bytes += b;
+  }
+  out.push(cur); return out.join("\r\n");
+}
+function sessionURL(s) { return isConfirmed(s) ? `${SITE_URL}session.html?date=${s.date}` : SITE_URL; }
+function eventTitle(s) {
+  return isConfirmed(s)
+    ? `Trajectories seminar: ${s.speaker}${s.affiliation ? " (" + s.affiliation + ")" : ""}`
+    : "Trajectories seminar: speaker to be announced";
+}
+function eventDetails(s) {
+  const lines = [];
+  if (isConfirmed(s)) {
+    lines.push(`"${s.title}"`);
+    lines.push(`${s.speaker}${s.affiliation ? ", " + s.affiliation : ""}`);
+    lines.push("");
+  } else {
+    lines.push("Speaker and title to be announced.", "");
+  }
+  lines.push(ZOOM_NOTE);
+  lines.push(`Join the mailing list: ${MAILING_LIST}`);
+  lines.push(isConfirmed(s) ? `Abstract: ${sessionURL(s)}` : `Programme: ${SITE_URL}`);
+  return lines.join("\n");
+}
+function buildICS(list) {
+  const now = icsStamp(new Date());
+  const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Trajectories seminar series//EN",
+    "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Trajectories seminars", "X-WR-TIMEZONE:Europe/Rome"];
+  for (const s of list) {
+    const { start, end } = sessionTimes(s);
+    L.push("BEGIN:VEVENT",
+      `UID:trajectories-${s.date.replace(/-/g, "")}@trajectories-seminar.github.io`,
+      `DTSTAMP:${now}`, `DTSTART:${icsStamp(start)}`, `DTEND:${icsStamp(end)}`,
+      `SUMMARY:${icsText(eventTitle(s))}`,
+      `DESCRIPTION:${icsText(eventDetails(s))}`,
+      "LOCATION:Online (Zoom)", `URL:${sessionURL(s)}`,
+      "BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:Trajectories seminar", "TRIGGER:-PT30M", "END:VALARM",
+      "END:VEVENT");
+  }
+  L.push("END:VCALENDAR");
+  return L.map(icsFold).join("\r\n") + "\r\n";
+}
+function downloadICS(list, filename) {
+  const blob = new Blob([buildICS(list)], { type: "text/calendar;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function googleLink(s) {
+  const { start, end } = sessionTimes(s);
+  const q = new URLSearchParams({
+    action: "TEMPLATE", text: eventTitle(s),
+    dates: `${icsStamp(start)}/${icsStamp(end)}`,
+    details: eventDetails(s), location: "Online (Zoom)", ctz: "Europe/Rome"
+  });
+  return "https://calendar.google.com/calendar/render?" + q.toString();
+}
+function bindCalendarButtons() {
+  document.querySelectorAll("[data-cal]").forEach(btn => {
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.cal;
+      if (key === "all") {
+        const list = [...SESSIONS].filter(s => !isPast(s)).sort((a, b) => a.date.localeCompare(b.date));
+        downloadICS(list, "trajectories-seminars.ics");
+      } else {
+        const s = SESSIONS.find(x => x.date === key);
+        if (s) downloadICS([s], `trajectories-${key}.ics`);
+      }
+    });
+  });
 }
